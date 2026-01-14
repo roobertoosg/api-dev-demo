@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         // ID del archivo en Managed Files con las credenciales
-        SETTINGS_XML_ID = 'nexus-settings-xml'
+        SETTINGS_XML_ID = 'nexus-settings'
     }
 
     stages {
