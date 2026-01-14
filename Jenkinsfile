@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    options {
+
+         timeout(time: 1,unit: 'HOURS')
+         buldDiscarder(logRotator(numToKeepStr: '10'))
+         timestamps()
+          }
     tools {
         maven 'Maven3' 
     }
@@ -13,7 +19,7 @@ pipeline {
     stages {
         stage('1. Build & Test') {
             steps {
-                echo '--- Compilando y ejecutando Tests Unitarios ---'
+                echo '--- Compilando y ejecutando Tests ---'
                 // Maven limpia y empaqueta.
                 sh 'mvn clean package'
             }
@@ -28,8 +34,21 @@ pipeline {
             }
         }
 
-        stage('3. Deploy to Nexus') {
+        stage('3. Quality Gate') {
             steps {
+              timeout(time: 5, unit: 'MINUTES'){
+		echo '--- Esperando veredicto de calidad ---'
+                waitForQualityGate abortPipeline: true
+                          }
+		}
+	}
+
+	stage('4. Deploy to Nexus') {
+
+	   options {
+		     retry(3)
+		}
+		steps {
                 echo '--- Publicando Release en Nexus ---'
                 configFileProvider([configFile(fileId: SETTINGS_XML_ID, variable: 'MAVEN_SETTINGS')]) {
                     // 1. Usamos -s para las credenciales seguras.
@@ -44,6 +63,17 @@ pipeline {
     post {
         always {
             cleanWs()
-        }
-    }
-}
+	    echo 'Workspace Limpio.'
+	}
+	success {
+	    echo 'Artefacto desplegado, ha cumplido con los estandares de calidad'
+	}
+	failure {
+	    echo 'ERROR: el pipeline fallo'
+	    echo 'Fallo en la etapa: ${env.STAGE_NAME}'
+	}
+	unstable{
+	    echo 'INESTABLE: Paso, pero hay test fallando o advertencias'
+	}
+      }
+   }
