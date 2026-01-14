@@ -13,12 +13,14 @@
 
     <groupId>com.proyecto</groupId>
     <artifactId>api-devops-demo</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>${revision}</version>
     <name>api-devops-demo</name>
     <description>Demo de API para flujo DevOps</description>
 
     <properties>
-        <java.version>1.8</java.version> </properties>
+	    <java.version>1.8</java.version> 
+            <revision>1.0.0</revision>
+    </properties>
 
     <dependencies>
         <dependency>
