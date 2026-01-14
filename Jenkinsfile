@@ -4,7 +4,7 @@ pipeline {
     options {
 
          timeout(time: 1,unit: 'HOURS')
-         buldDiscarder(logRotator(numToKeepStr: '10'))
+         buildDiscarder(logRotator(numToKeepStr: '10'))
          timestamps()
           }
     tools {
